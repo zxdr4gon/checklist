@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f4">
+  <meta name="description" content="A quiet, minimal checklist for focusing on what matters.">
+  <title>Focus List</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f8f7f4;
+      --paper: #fffefa;
+      --ink: #20211f;
+      --muted: #85857f;
+      --line: #deded7;
+      --accent: #315c4b;
+      --accent-soft: #e5eee8;
+      --danger: #a3483d;
+      --shadow: 0 18px 60px rgba(30, 32, 26, .045);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--page); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.88), transparent 62%),
+        var(--page);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell {
+      width: min(100% - 40px, 760px);
+      margin: 0 auto;
+      padding: clamp(44px, 9vh, 92px) 0 60px;
+    }
+    .topline {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: clamp(54px, 10vh, 90px);
+    }
+    .brand {
+      display: flex; align-items: center; gap: 11px;
+      color: var(--muted); font-size: 12px; font-weight: 750;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .brand-mark {
+      width: 25px; height: 25px; border: 1.5px solid var(--accent);
+      border-radius: 7px; display: grid; place-items: center; color: var(--accent);
+      font-size: 15px; letter-spacing: 0; font-weight: 700;
+    }
+    .save-state {
+      color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 7px;
+    }
+    .save-dot { width: 6px; height: 6px; border-radius: 50%; background: #78a58b; }
+    h1 {
+      margin: 0; font-size: clamp(46px, 8vw, 76px); line-height: .99;
+      letter-spacing: -.065em; font-weight: 730;
+    }
+    .intro {
+      margin: 19px 0 0; color: var(--muted); font-size: clamp(15px, 2vw, 17px);
+      line-height: 1.6; letter-spacing: -.015em;
+    }
+    .list-card {
+      margin-top: 48px; background: rgba(255,254,250,.76);
+      border: 1px solid rgba(222,222,215,.8); border-radius: 20px;
+      padding: 12px 27px 18px; box-shadow: var(--shadow);
+    }
+    .items { list-style: none; padding: 0; margin: 0; }
+    .item {
+      display: grid; grid-template-columns: 39px minmax(0, 1fr) 34px;
+      align-items: stretch; column-gap: 13px; min-height: 67px;
+      border-bottom: 1px solid var(--line);
+      animation: appear .25s ease both;
+    }
+    .check {
+      align-self: center; justify-self: start; display: grid; place-items: center;
+      width: 30px; height: 30px; border: 1.7px solid #aaa9a1;
+      border-radius: 8px; background: transparent; cursor: pointer;
+      font-size: 20px; line-height: 1; font-weight: 750;
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
+      padding: 0;
+    }
+    .check:hover { border-color: var(--accent); transform: scale(1.05); }
+    .check:focus-visible, .remove:focus-visible, .add-button:focus-visible, .task-input:focus-visible {
+      outline: 3px solid rgba(49,92,75,.25); outline-offset: 3px;
+    }
+    .item.completed .check { color: white; background: var(--accent); border-color: var(--accent); }
+    .check .x { transform: scale(.85); }
+    .task-input {
+      width: 100%; min-width: 0; align-self: stretch; border: 0; outline: 0;
+      background: transparent; color: var(--ink); padding: 17px 0 16px;
+      font-size: clamp(17px, 2.5vw, 21px); line-height: 1.55;
+      letter-spacing: -.025em; caret-color: var(--accent);
+      text-decoration: none;
+    }
+    .task-input::placeholder { color: #b1b0a8; }
+    .item.completed .task-input {
+      color: #92928a; text-decoration: line-through;
+      text-decoration-color: #aaa9a1; text-decoration-thickness: 1.5px;
+      transition: color .22s;
+    }
+    .remove {
+      align-self: center; justify-self: end; width: 30px; height: 30px;
+      display: grid; place-items: center; border: 0; background: transparent;
+      color: #b2b1aa; border-radius: 7px; cursor: pointer; opacity: 0;
+      transition: opacity .18s, color .18s, background .18s; font-size: 21px;
+      padding: 0;
+    }
+    .item:hover .remove, .remove:focus-visible { opacity: 1; }
+    .remove:hover { color: var(--danger); background: #f5e9e6; }
+    .add-button {
+      display: flex; align-items: center; gap: 13px; width: 100%;
+      padding: 18px 0 8px; border: 0; background: transparent;
+      color: var(--muted); cursor: pointer; text-align: left;
+      font-size: 16px; letter-spacing: -.015em; transition: color .18s;
+    }
+    .add-button:hover { color: var(--accent); }
+    .plus {
+      width: 30px; height: 30px; border: 1.5px dashed #b9b9b1;
+      border-radius: 8px; display: grid; place-items: center;
+      font-size: 23px; font-weight: 350; line-height: 1; color: var(--accent);
+      transition: border-color .18s, background .18s;
+    }
+    .add-button:hover .plus { border-color: var(--accent); background: var(--accent-soft); }
+    .bottomline {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 16px; padding: 19px 4px 0; color: var(--muted); font-size: 12px;
+    }
+    .progress { display: flex; align-items: center; gap: 9px; }
+    .progress-track { width: 72px; height: 3px; border-radius: 4px; background: #e5e4dd; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: var(--accent); transition: width .3s ease; }
+    .keyboard-hint { opacity: .85; }
+    .empty-note { padding: 24px 0; color: var(--muted); font-size: 15px; }
+    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 28px, 760px); padding-top: 34px; }
+      .topline { margin-bottom: 58px; }
+      .list-card { margin-top: 34px; padding: 8px 15px 15px; border-radius: 15px; }
+      .item { grid-template-columns: 32px minmax(0, 1fr) 28px; column-gap: 9px; min-height: 62px; }
+      .check, .plus { width: 28px; height: 28px; border-radius: 7px; }
+      .remove { opacity: .65; width: 26px; }
+      .bottomline { align-items: flex-start; }
+      .keyboard-hint { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✓</span> Focus List</div>
+      <div class="save-state" role="status" aria-live="polite"><span class="save-dot" aria-hidden="true"></span><span id="save-label">Saved on this device</span></div>
+    </header>
+
+    <section aria-labelledby="page-title">
+      <h1 id="page-title">One thing<br>at a time.</h1>
+      <p class="intro">A little room to think. Write down what matters.</p>
+    </section>
+
+    <section class="list-card" aria-label="Your checklist">
+      <ul class="items" id="items"></ul>
+      <button class="add-button" id="add-button" type="button">
+        <span class="plus" aria-hidden="true">+</span><span>Add an item</span>
+      </button>
+      <div class="bottomline">
+        <div class="progress"><span id="progress-label">0 completed</span><span class="progress-track" aria-hidden="true"><span class="progress-fill" id="progress-fill"></span></span></div>
+        <span class="keyboard-hint">Enter to add another</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const STORAGE_KEY = "focus-list-items-v1";
+      const list = document.getElementById("items");
+      const addButton = document.getElementById("add-button");
+      const progressLabel = document.getElementById("progress-label");
+      const progressFill = document.getElementById("progress-fill");
+      const saveLabel = document.getElementById("save-label");
+      let items = loadItems();
+      let saveTimer;
+
+      function makeId() {
+        return (globalThis.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : Date.now().toString(36) + Math.random().toString(36).slice(2);
+      }
+
+      function loadItems() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if (Array.isArray(parsed)) {
+            return parsed.filter(item => item && typeof item.text === "string")
+              .map(item => ({ id: String(item.id || makeId()), text: item.text, completed: Boolean(item.completed) }));
+          }
+        } catch (error) {
+          console.warn("Could not read saved checklist.", error);
+        }
+        return [{ id: makeId(), text: "", completed: false }];
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+          saveLabel.textContent = "Saved on this device";
+        } catch (error) {
+          saveLabel.textContent = "Could not save";
+          console.warn("Could not save checklist.", error);
+        }
+      }
+
+      function scheduleSave() {
+        saveLabel.textContent = "Saving…";
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(save, 120);
+      }
+
+      function updateProgress() {
+        const completed = items.filter(item => item.completed).length;
+        const total = items.length;
+        progressLabel.textContent = `${completed} of ${total} completed`;
+        progressFill.style.width = `${total ? completed / total * 100 : 0}%`;
+      }
+
+      function render(focusId = null, cursorAtEnd = false) {
+        list.replaceChildren();
+        items.forEach(item => {
+          const li = document.createElement("li");
+          li.className = `item${item.completed ? " completed" : ""}`;
+          li.dataset.id = item.id;
+
+          const check = document.createElement("button");
+          check.type = "button";
+          check.className = "check";
+          check.setAttribute("aria-label", item.completed ? "Mark item incomplete" : "Mark item complete");
+          check.setAttribute("aria-pressed", String(item.completed));
+          check.innerHTML = item.completed ? '<span class="x" aria-hidden="true">X</span>' : "";
+          check.addEventListener("click", () => {
+            item.completed = !item.completed;
+            li.classList.toggle("completed", item.completed);
+            check.innerHTML = item.completed ? '<span class="x" aria-hidden="true">X</span>' : "";
+            check.setAttribute("aria-label", item.completed ? "Mark item incomplete" : "Mark item complete");
+            check.setAttribute("aria-pressed", String(item.completed));
+            scheduleSave();
+            updateProgress();
+          });
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "task-input";
+          input.value = item.text;
+          input.placeholder = "Write something down…";
+          input.setAttribute("aria-label", "Checklist item");
+          input.autocomplete = "off";
+          input.spellcheck = true;
+          input.addEventListener("input", () => {
+            item.text = input.value;
+            scheduleSave();
+          });
+          input.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              const next = addItem();
+              render(next, true);
+            } else if (event.key === "Escape") {
+              input.blur();
+            }
+          });
+          input.addEventListener("blur", () => {
+            if (!item.text.trim() && items.length > 1) {
+              items = items.filter(entry => entry.id !== item.id);
+              save();
+              render();
+            }
+          });
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "remove";
+          remove.innerHTML = '<span aria-hidden="true">×</span>';
+          remove.setAttribute("aria-label", "Delete item");
+          remove.title = "Delete item";
+          remove.addEventListener("click", () => {
+            items = items.filter(entry => entry.id !== item.id);
+            if (!items.length) items.push({ id: makeId(), text: "", completed: false });
+            save();
+            render();
+          });
+
+          li.append(check, input, remove);
+          list.append(li);
+          if (item.id === focusId) {
+            input.focus();
+            if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
+          }
+        });
+        updateProgress();
+      }
+
+      function addItem() {
+        const item = { id: makeId(), text: "", completed: false };
+        items.push(item);
+        scheduleSave();
+        return item.id;
+      }
+
+      addButton.addEventListener("click", () => render(addItem(), true));
+      render();
+
+      // Persist immediately when the page is backgrounded or closed.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") save();
+      });
+      window.addEventListener("pagehide", save);
+    })();
+  </script>
+</body>
+</html>
