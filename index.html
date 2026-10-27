@@ -1,9 +1,10 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7f4">
+  <meta name="theme-color" content="#f8f7f4" id="theme-color-meta">
   <meta name="description" content="A quiet, minimal checklist for focusing on what matters.">
   <title>Focus List</title>
   <style>
@@ -18,20 +19,55 @@
       --accent-soft: #e5eee8;
       --danger: #a3483d;
       --shadow: 0 18px 60px rgba(30, 32, 26, .045);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --page-glow: rgba(255,255,255,.88);
+      --card: rgba(255,254,250,.76);
+      --card-border: rgba(222,222,215,.8);
+      --placeholder: #b1b0a8;
+      --muted-line: #e5e4dd;
+      --remove-hover-bg: #f5e9e6;
+      --focus-ring: rgba(49,92,75,.25);
+      font-family: "Hondares Story Regular", "DearJoe 5 C PRO Regular", "Segoe Print", "Bradley Hand", cursive;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --page: #171a18;
+      --paper: #202521;
+      --ink: #eceee8;
+      --muted: #9da69d;
+      --line: #353c36;
+      --accent: #a4cbb1;
+      --accent-soft: #293c30;
+      --danger: #e59a8f;
+      --shadow: 0 18px 60px rgba(0,0,0,.18);
+      --page-glow: rgba(60,78,66,.24);
+      --card: rgba(32,37,33,.9);
+      --card-border: rgba(75,86,77,.65);
+      --placeholder: #737d74;
+      --muted-line: #353c36;
+      --remove-hover-bg: #3b2927;
+      --focus-ring: rgba(164,203,177,.28);
     }
     * { box-sizing: border-box; }
-    html { min-height: 100%; background: var(--page); }
+    html { min-height: 100%; background: var(--page); transition: background-color .35s ease; }
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.88), transparent 62%),
+        radial-gradient(ellipse at 50% 0%, var(--page-glow), transparent 62%),
         var(--page);
       color: var(--ink);
+      transition: background-color .35s ease, color .35s ease;
       -webkit-font-smoothing: antialiased;
     }
     button, input { font: inherit; }
+    .theme-toggle {
+      flex: 0 0 auto; width: 40px; height: 40px; display: grid; place-items: center;
+      border: 1px solid var(--line); border-radius: 12px; background: var(--card);
+      color: var(--ink); cursor: pointer; font-size: 19px; line-height: 1;
+      transition: background-color .32s ease, color .32s ease, border-color .32s ease, transform .2s ease;
+    }
+    .theme-toggle:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .theme-toggle:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
     button { color: inherit; }
     .shell {
       width: min(100% - 40px, 760px);
@@ -40,7 +76,7 @@
     }
     .topline {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; margin-bottom: clamp(54px, 10vh, 90px);
+      gap: 16px; margin-bottom: clamp(28px, 5vh, 44px);
     }
     .brand {
       display: flex; align-items: center; gap: 11px;
@@ -53,7 +89,7 @@
       font-size: 15px; letter-spacing: 0; font-weight: 700;
     }
     .save-state {
-      color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 7px;
+      color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 7px; margin-left: auto;
     }
     .save-dot { width: 6px; height: 6px; border-radius: 50%; background: #78a58b; }
     h1 {
@@ -65,8 +101,8 @@
       line-height: 1.6; letter-spacing: -.015em;
     }
     .list-card {
-      margin-top: 48px; background: rgba(255,254,250,.76);
-      border: 1px solid rgba(222,222,215,.8); border-radius: 20px;
+      margin-top: 0; background: var(--card);
+      border: 1px solid var(--card-border); border-radius: 20px;
       padding: 12px 27px 18px; box-shadow: var(--shadow);
     }
     .items { list-style: none; padding: 0; margin: 0; }
@@ -86,7 +122,7 @@
     }
     .check:hover { border-color: var(--accent); transform: scale(1.05); }
     .check:focus-visible, .remove:focus-visible, .add-button:focus-visible, .task-input:focus-visible {
-      outline: 3px solid rgba(49,92,75,.25); outline-offset: 3px;
+      outline: 3px solid var(--focus-ring); outline-offset: 3px;
     }
     .item.completed .check { color: white; background: var(--accent); border-color: var(--accent); }
     .check .x { transform: scale(.85); }
@@ -97,7 +133,7 @@
       letter-spacing: -.025em; caret-color: var(--accent);
       text-decoration: none;
     }
-    .task-input::placeholder { color: #b1b0a8; }
+    .task-input::placeholder { color: var(--placeholder); }
     .item.completed .task-input {
       color: #92928a; text-decoration: line-through;
       text-decoration-color: #aaa9a1; text-decoration-thickness: 1.5px;
@@ -111,7 +147,7 @@
       padding: 0;
     }
     .item:hover .remove, .remove:focus-visible { opacity: 1; }
-    .remove:hover { color: var(--danger); background: #f5e9e6; }
+    .remove:hover { color: var(--danger); background: var(--remove-hover-bg); }
     .add-button {
       display: flex; align-items: center; gap: 13px; width: 100%;
       padding: 18px 0 8px; border: 0; background: transparent;
@@ -131,7 +167,7 @@
       gap: 16px; padding: 19px 4px 0; color: var(--muted); font-size: 12px;
     }
     .progress { display: flex; align-items: center; gap: 9px; }
-    .progress-track { width: 72px; height: 3px; border-radius: 4px; background: #e5e4dd; overflow: hidden; }
+    .progress-track { width: 72px; height: 3px; border-radius: 4px; background: var(--muted-line); overflow: hidden; }
     .progress-fill { height: 100%; width: 0; border-radius: inherit; background: var(--accent); transition: width .3s ease; }
     .keyboard-hint { opacity: .85; }
     .empty-note { padding: 24px 0; color: var(--muted); font-size: 15px; }
@@ -156,14 +192,10 @@
     <header class="topline">
       <div class="brand"><span class="brand-mark" aria-hidden="true">✓</span> Focus List</div>
       <div class="save-state" role="status" aria-live="polite"><span class="save-dot" aria-hidden="true"></span><span id="save-label">Saved on this device</span></div>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><span id="theme-icon" aria-hidden="true">☾</span></button>
     </header>
 
-    <section aria-labelledby="page-title">
-      <h1 id="page-title">One thing<br>at a time.</h1>
-      <p class="intro">A little room to think. Write down what matters.</p>
-    </section>
-
-    <section class="list-card" aria-label="Your checklist">
+<section class="list-card" aria-label="Your checklist">
       <ul class="items" id="items"></ul>
       <button class="add-button" id="add-button" type="button">
         <span class="plus" aria-hidden="true">+</span><span>Add an item</span>
@@ -184,6 +216,28 @@
       const progressLabel = document.getElementById("progress-label");
       const progressFill = document.getElementById("progress-fill");
       const saveLabel = document.getElementById("save-label");
+      const themeToggle = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const themeColorMeta = document.getElementById("theme-color-meta");
+      const THEME_KEY = "focus-list-theme-v1";
+
+      function applyTheme(theme) {
+        const dark = theme === "dark";
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        themeIcon.textContent = dark ? "☀" : "☾";
+        themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+        themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
+        themeColorMeta.setAttribute("content", dark ? "#171a18" : "#f8f7f4");
+      }
+
+      let currentTheme = "light";
+      try { currentTheme = localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light"; } catch (error) {}
+      applyTheme(currentTheme);
+      themeToggle.addEventListener("click", () => {
+        currentTheme = currentTheme === "dark" ? "light" : "dark";
+        applyTheme(currentTheme);
+        try { localStorage.setItem(THEME_KEY, currentTheme); } catch (error) {}
+      });
       let items = loadItems();
       let saveTimer;
 
